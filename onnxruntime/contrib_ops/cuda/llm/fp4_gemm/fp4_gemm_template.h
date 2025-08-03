@@ -15,6 +15,8 @@
  */
 
 #pragma once
+#include "contrib_ops/cuda/llm/common/logger.h"
+#include "core/providers/cuda/shared_inc/cuda_call.h"
 
 #ifndef _WIN32
 #pragma GCC diagnostic push
@@ -39,8 +41,6 @@
 #include "contrib_ops/cuda/llm/fp4_gemm/nvfp4_nvfp4_gemm_template_sm100.h"
 #include "contrib_ops/cuda/llm/fp4_gemm/nvfp4_nvfp4_gemm_template_sm120.h"
 #include "contrib_ops/cuda/llm/common/cuda_runtime_utils.h"
-#include "contrib_ops/cuda/llm/common/logger.h"
-#include "core/providers/cuda/shared_inc/cuda_call.h"
 
 namespace onnxruntime::llm {
 namespace kernels {
@@ -176,7 +176,7 @@ size_t dispatchNVFP4xNVFP4GemmCTAShapeSm120(T* D, void const* A, void const* B, 
                                             tkc::CutlassGemmConfig gemmConfig, char* workspace, const size_t workspaceBytes, cudaStream_t stream,
                                             int* occupancy = nullptr) {
   ORT_LLM_LOG_ENTRY();
-  TLLM_LOG_DEBUG("gemmConfig.tile_config_sm120: %d", gemmConfig.tile_config_sm120);
+  ORT_LLM_LOG_DEBUG(onnxruntime::MakeString("gemmConfig.tile_config_sm120: ", gemmConfig.tile_config_sm120));
 
   switch (gemmConfig.tile_config_sm120) {
     case tkc::CutlassTileConfigSM120::CtaShape128x128x256B:
