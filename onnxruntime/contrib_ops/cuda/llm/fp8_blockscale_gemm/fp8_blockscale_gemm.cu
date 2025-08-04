@@ -17,6 +17,7 @@
 #include "contrib_ops/cuda/llm/fp8_blockscale_gemm/fp8_blockscale_gemm.h"
 #include "contrib_ops/cuda/llm/fp8_blockscale_gemm/fp8_blockscale_gemm_kernel.cuh"
 #include "contrib_ops/cuda/llm/common/logger.h"
+#include "core/common/common.h"
 
 namespace onnxruntime::llm::kernels::fp8_blockscale_gemm {
 
@@ -26,16 +27,14 @@ void CutlassFp8BlockScaleGemmRunner<ElementA, ElementB, ElementD>::gemm(void* ma
                                                                         float const* scales_b) {
   constexpr bool internal_quantize_a = !std::is_same_v<ElementA, __nv_fp8_e4m3>;
   constexpr bool internal_quantize_b = !std::is_same_v<ElementB, __nv_fp8_e4m3>;
-  __nv_fp8_e4m3* fp8_mat_a;
-  __nv_fp8_e4m3* fp8_mat_b;
-  float* per_token_per_128c_scales;
-  float* per_block_scales;
 
-  auto* ws_ptr = workspace_;
+  [[maybe_unused]] auto* ws_ptr = workspace_;
   if constexpr (internal_quantize_a || internal_quantize_b) {
     ORT_ENFORCE(ws_ptr != nullptr);
   }
 
+  [[maybe_unused]] __nv_fp8_e4m3* fp8_mat_a = nullptr;
+  [[maybe_unused]] float* per_token_per_128c_scales = nullptr;
   if constexpr (internal_quantize_a) {
     fp8_mat_a = reinterpret_cast<__nv_fp8_e4m3*>(ws_ptr);
     ws_ptr += max_shape_m_4_align_ * shape_k * sizeof(__nv_fp8_e4m3);
@@ -43,6 +42,8 @@ void CutlassFp8BlockScaleGemmRunner<ElementA, ElementB, ElementD>::gemm(void* ma
     ws_ptr += max_shape_m_4_align_ * div_up(shape_k, 128) * sizeof(float);
   }
 
+  [[maybe_unused]] __nv_fp8_e4m3* fp8_mat_b = nullptr;
+  [[maybe_unused]] float* per_block_scales = nullptr;
   if constexpr (internal_quantize_b) {
     fp8_mat_b = reinterpret_cast<__nv_fp8_e4m3*>(ws_ptr);
     ws_ptr += shape_n * shape_k * sizeof(__nv_fp8_e4m3);
@@ -84,16 +85,13 @@ void CutlassFp8BlockScaleGemmRunner<ElementA, ElementB, ElementD>::moeGemm(void*
   constexpr bool internal_quantize_a = !std::is_same_v<ElementA, __nv_fp8_e4m3>;
   constexpr bool internal_quantize_b = !std::is_same_v<ElementB, __nv_fp8_e4m3>;
 
-  __nv_fp8_e4m3* fp8_mat_a;
-  float* per_token_per_128c_scales;
-  __nv_fp8_e4m3* fp8_mat_b;
-  float* per_block_scales;
-
   auto* ws_ptr = workspace_;
   if constexpr (internal_quantize_a || internal_quantize_b) {
     ORT_ENFORCE(ws_ptr != nullptr);
   }
 
+  [[maybe_unused]] __nv_fp8_e4m3* fp8_mat_a = nullptr;
+  [[maybe_unused]] float* per_token_per_128c_scales = nullptr;
   if constexpr (internal_quantize_a) {
     fp8_mat_a = reinterpret_cast<__nv_fp8_e4m3*>(ws_ptr);
     ws_ptr += max_shape_m_4_align_ * shape_k * sizeof(__nv_fp8_e4m3);
@@ -104,15 +102,15 @@ void CutlassFp8BlockScaleGemmRunner<ElementA, ElementB, ElementD>::moeGemm(void*
     per_token_per_128c_scales = const_cast<float*>(scales_a);
   }
 
+  [[maybe_unused]] __nv_fp8_e4m3* fp8_mat_b = nullptr;
+  [[maybe_unused]] float* per_block_scales = nullptr;
   if constexpr (internal_quantize_b) {
     fp8_mat_b = reinterpret_cast<__nv_fp8_e4m3*>(ws_ptr);
     ws_ptr += num_problems * shape_n * shape_k * sizeof(__nv_fp8_e4m3);
     per_block_scales = reinterpret_cast<float*>(ws_ptr);
   } else {
-    for (int i = 0; i < num_problems; i++) {
-      fp8_mat_b = reinterpret_cast<__nv_fp8_e4m3*>(const_cast<void*>(mat_b));
-      per_block_scales = const_cast<float*>(scales_b);
-    }
+    fp8_mat_b = reinterpret_cast<__nv_fp8_e4m3*>(const_cast<void*>(mat_b));
+    per_block_scales = const_cast<float*>(scales_b);
   }
 
 #ifdef COMPILE_HOPPER_TMA_GEMMS

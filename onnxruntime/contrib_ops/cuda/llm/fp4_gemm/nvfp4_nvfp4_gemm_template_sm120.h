@@ -46,10 +46,10 @@ using namespace cute;
 
 template <typename T, typename CTA_M_, typename CTA_N_, typename CTA_K_, typename CGA_M_, typename CGA_N_,
           typename CGA_K_>
-size_t genericFp4GemmKernelLauncherSm120(void* D, void const* A, void const* B, void const* input_sf,
-                                         void const* weight_sf, float const* global_sf, int m, int n, int k, int batch_count,
-                                         tkc::CutlassGemmConfig gemmConfig, char* workspace, size_t const workspaceBytes, cudaStream_t stream,
-                                         int* occupancy) {
+size_t genericFp4GemmKernelLauncherSm120(void*, void const*, void const*, void const*,
+                                         void const*, float const*, int, int, int, int,
+                                         tkc::CutlassGemmConfig, char*, size_t const, cudaStream_t,
+                                         int*) {
   static_assert(always_false<T>, "Kernel should be explicitly instantiated.");
   return 0;
 };
@@ -130,9 +130,9 @@ size_t genericFp4GemmKernelLauncherSm120(void* D, void const* A, void const* B, 
                                                                                                                                                                                                                \
   template <typename Gemm>                                                                                                                                                                                     \
   typename Gemm::Arguments                                                                                                                                                                                     \
-  prepareGemmArgs_Sm120_##T##_##CTA_M_##_##CTA_N_##_##CTA_K_##_##CGA_M_##_##CGA_N_##_##CGA_K_(void* D,                                                                                                         \
-                                                                                              void const* A, void const* B, void const* input_sf, void const* weight_sf, float const* global_sf, int m,        \
-                                                                                              int n, int k, int batch_count) {                                                                                 \
+      prepareGemmArgs_Sm120_##T##_##CTA_M_##_##CTA_N_##_##CTA_K_##_##CGA_M_##_##CGA_N_##_##CGA_K_(void* D,                                                                                                     \
+                                                                                                  void const* A, void const* B, void const* input_sf, void const* weight_sf, float const* global_sf, int m,    \
+                                                                                                  int n, int k, int batch_count) {                                                                             \
     using Sm1xxBlkScaledConfig = typename Gemm::GemmKernel::CollectiveMainloop::Sm1xxBlkScaledConfig;                                                                                                          \
     using ElementA = typename Gemm::ElementA;                                                                                                                                                                  \
     using ElementB = typename Gemm::ElementB;                                                                                                                                                                  \

@@ -80,9 +80,9 @@ constexpr auto always_false = false;
 
 template <typename T, typename CTA_M_, typename CTA_N_, typename CTA_K_, typename CGA_M_, typename CGA_N_,
           typename CGA_K_, typename XSM_>
-size_t genericFp4GemmKernelLauncher(void* D, void const* A, void const* B, void const* input_sf, void const* weight_sf,
-                                    float const* global_sf, int m, int n, int k, int batch_count, tkc::CutlassGemmConfig gemmConfig, char* workspace,
-                                    size_t const workspaceBytes, cudaStream_t stream, int* occupancy) {
+size_t genericFp4GemmKernelLauncher(void*, void const*, void const*, void const*, void const*,
+                                    float const*, int, int, int, int, tkc::CutlassGemmConfig, char*,
+                                    size_t const, cudaStream_t, int*) {
   static_assert(always_false<T>, "Kernel should be explicitly instantiated.");
   return 0;
 }
@@ -122,7 +122,7 @@ size_t genericFp4GemmKernelLauncher(void* D, void const* A, void const* B, void 
     using ElementC = void;                                                                                                                                                                              \
     using LayoutC = cutlass::layout::RowMajor;                                                                                                                                                          \
     static constexpr int AlignmentC = 128 / cutlass::sizeof_bits<OutElementType>::value;                                                                                                                \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     using SFType = cutlass::float_ue4m3_t;                                                                                                                                                              \
     using ElementCompute = float;                                                                                                                                                                       \
     using ElementAccumulator = float;                                                                                                                                                                   \
@@ -136,14 +136,14 @@ size_t genericFp4GemmKernelLauncher(void* D, void const* A, void const* B, void 
                                                                                          MmaTileShape, ClusterShape, EpilogueTileType, ElementAccumulator, ElementCompute, ElementC, LayoutC,           \
                                                                                          AlignmentC, OutElementType, LayoutC, AlignmentC, EpilogueSchedule,                                             \
                                                                                          cutlass::epilogue::fusion::LinearCombination<OutElementType, float, void, float>>::CollectiveOp;               \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     using CollectiveMainloop = typename cutlass::gemm::collective::CollectiveBuilder<Arch,                                                                                                              \
                                                                                      cutlass::arch::OpClassBlockScaledTensorOp, cute::tuple<ElementA, SFType>, LayoutA, AlignmentA,                     \
                                                                                      cute::tuple<ElementB, SFType>, LayoutB, AlignmentB, ElementAccumulator, MmaTileShape, ClusterShape,                \
                                                                                      cutlass::gemm::collective::StageCountAutoCarveout<static_cast<int>(                                                \
                                                                                          sizeof(typename CollectiveEpilogue::SharedStorage))>,                                                          \
                                                                                      MainloopSchedule>::CollectiveOp;                                                                                   \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     template <typename Base>                                                                                                                                                                            \
     struct Sm10xOnly : Base {                                                                                                                                                                           \
       using typename Base::Params;                                                                                                                                                                      \
@@ -161,15 +161,15 @@ size_t genericFp4GemmKernelLauncher(void* D, void const* A, void const* B, void 
     };                                                                                                                                                                                                  \
     using GemmKernel = Sm10xOnly<cutlass::gemm::kernel::GemmUniversal<cute::Shape<int, int, int, int>,                                                                                                  \
                                                                       CollectiveMainloop, CollectiveEpilogue, cutlass::gemm::PersistentScheduler>>;                                                     \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     using Gemm = typename cutlass::gemm::device::GemmUniversalAdapter<GemmKernel>;                                                                                                                      \
   };                                                                                                                                                                                                    \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
   template <typename Gemm>                                                                                                                                                                              \
   typename Gemm::Arguments                                                                                                                                                                              \
-  prepareGemmArgs_##T##_##CTA_M_##_##CTA_N_##_##CTA_K_##_##CGA_M_##_##CGA_N_##_##CGA_K_##XSM_(void* D,                                                                                                  \
-                                                                                              void const* A, void const* B, void const* input_sf, void const* weight_sf, float const* global_sf, int m, \
-                                                                                              int n, int k, int batch_count) {                                                                          \
+      prepareGemmArgs_##T##_##CTA_M_##_##CTA_N_##_##CTA_K_##_##CGA_M_##_##CGA_N_##_##CGA_K_##XSM_(void* D,                                                                                                  \
+                                                                                                  void const* A, void const* B, void const* input_sf, void const* weight_sf, float const* global_sf, int m, \
+                                                                                                  int n, int k, int batch_count) {                                                                          \
     using Sm1xxBlkScaledConfig = typename Gemm::GemmKernel::CollectiveMainloop::Sm1xxBlkScaledConfig;                                                                                                   \
     using ElementA = typename Gemm::ElementA;                                                                                                                                                           \
     using ElementB = typename Gemm::ElementB;                                                                                                                                                           \
@@ -178,33 +178,33 @@ size_t genericFp4GemmKernelLauncher(void* D, void const* A, void const* B, void 
     using ElementC = void;                                                                                                                                                                              \
     using ElementD = typename Gemm::ElementD;                                                                                                                                                           \
     using ElementCompute = float;                                                                                                                                                                       \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     typename Gemm::Arguments operator_args;                                                                                                                                                             \
     operator_args.mode = cutlass::gemm::GemmUniversalMode::kGemm;                                                                                                                                       \
     auto& fusion_args = operator_args.epilogue.thread;                                                                                                                                                  \
     fusion_args.alpha_ptr = static_cast<ElementCompute const*>(global_sf);                                                                                                                              \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     operator_args.problem_shape = cute::make_shape(m, n, k, batch_count);                                                                                                                               \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     operator_args.mainloop.ptr_A = static_cast<ElementA const*>(A);                                                                                                                                     \
     operator_args.mainloop.ptr_B = static_cast<ElementB const*>(B);                                                                                                                                     \
     operator_args.mainloop.ptr_SFA = static_cast<ElementSFA const*>(input_sf);                                                                                                                          \
     operator_args.mainloop.ptr_SFB = static_cast<ElementSFB const*>(weight_sf);                                                                                                                         \
     operator_args.epilogue.ptr_C = static_cast<ElementC const*>(D);                                                                                                                                     \
     operator_args.epilogue.ptr_D = static_cast<ElementD*>(D);                                                                                                                                           \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     int const stride_A = batch_count == 1 ? 0 : m * k;                                                                                                                                                  \
     int const stride_B = batch_count == 1 ? 0 : n * k;                                                                                                                                                  \
     int const stride_C = batch_count == 1 ? 0 : m * n;                                                                                                                                                  \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     operator_args.mainloop.dA = cute::make_int_tuple_from<typename Gemm::GemmKernel::StrideA>(k, stride_A);                                                                                             \
     operator_args.mainloop.dB = cute::make_int_tuple_from<typename Gemm::GemmKernel::StrideB>(k, stride_B);                                                                                             \
     operator_args.epilogue.dC = cute::make_int_tuple_from<typename Gemm::GemmKernel::StrideC>(n, stride_C);                                                                                             \
     operator_args.epilogue.dD = operator_args.epilogue.dC;                                                                                                                                              \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     operator_args.mainloop.layout_SFA = Sm1xxBlkScaledConfig::tile_atom_to_shape_SFA(operator_args.problem_shape);                                                                                      \
     operator_args.mainloop.layout_SFB = Sm1xxBlkScaledConfig::tile_atom_to_shape_SFB(operator_args.problem_shape);                                                                                      \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     if constexpr (!std::is_const_v<decltype(operator_args.scheduler.max_swizzle_size)>) {                                                                                                               \
       operator_args.scheduler.max_swizzle_size = 1;                                                                                                                                                     \
     }                                                                                                                                                                                                   \
@@ -214,10 +214,10 @@ size_t genericFp4GemmKernelLauncher(void* D, void const* A, void const* B, void 
     }                                                                                                                                                                                                   \
     operator_args.hw_info.cluster_shape = dim3(CGA_M_, CGA_N_, CGA_K_);                                                                                                                                 \
     operator_args.hw_info.cluster_shape_fallback = dim3(SMTypeAdapter<XSM_>::Scale, 1, 1);                                                                                                              \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     return operator_args;                                                                                                                                                                               \
   }                                                                                                                                                                                                     \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
   template <>                                                                                                                                                                                           \
   size_t genericFp4GemmKernelLauncher<T, cute::Int<CTA_M_>, cute::Int<CTA_N_>, cute::Int<CTA_K_>, cute::Int<CGA_M_>,                                                                                    \
                                       cute::Int<CGA_N_>, cute::Int<CGA_K_>, XSM_>(void* D, void const* A, void const* B, void const* input_sf,                                                          \
@@ -232,7 +232,7 @@ size_t genericFp4GemmKernelLauncher(void* D, void const* A, void const* B, void 
     using ElementOutput =                                                                                                                                                                               \
         typename cutlass::platform::conditional<cutlass::platform::is_same<ElementOutput_, SafeBF16>::value,                                                                                            \
                                                 cutlass::bfloat16_t, ElementOutput_>::type;                                                                                                             \
-                                                                                                                                                                                                        \
+                                                                                                                                                                                                            \
     using Fp4GemmOperator = DeviceGemmFp4GemmSm100_##T##_##CTA_M_##_##CTA_N_##_##CTA_K_##_##CGA_M_##_##CGA_N_##_##CGA_K_##XSM_::                                                                        \
         Gemm;                                                                                                                                                                                           \
     Fp4GemmOperator gemm;                                                                                                                                                                               \

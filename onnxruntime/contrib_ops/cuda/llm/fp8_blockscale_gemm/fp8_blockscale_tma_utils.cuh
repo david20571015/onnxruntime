@@ -23,6 +23,7 @@
 #include <cassert>
 #include <cuda/barrier>
 #include <cute/arch/util.hpp>
+#include "core/common/common.h"
 
 namespace onnxruntime::llm::kernels::fp8_blockscale_gemm {
 

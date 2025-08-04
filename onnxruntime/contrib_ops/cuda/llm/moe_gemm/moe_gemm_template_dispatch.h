@@ -41,11 +41,9 @@
 #include "cutlass/gemm/kernel/gemm_universal.hpp"
 #include "cutlass/tensor_ref.h"
 
-
 #include "contrib_ops/cuda/llm/cutlass_extensions/gemm/kernel/default_fpA_intB_traits.h"
 #include "contrib_ops/cuda/llm/cutlass_extensions/gemm/threadblock/default_mma.h"
 #include "contrib_ops/cuda/llm/cutlass_extensions/weight_only_quant_op.h"
-
 
 #include "cutlass/gemm/device/gemm_grouped.h"
 #include "cutlass/gemm/kernel/default_gemm_grouped.h"
@@ -53,7 +51,6 @@
 #include "contrib_ops/cuda/llm/cutlass_extensions/compute_occupancy.h"
 #include "contrib_ops/cuda/llm/cutlass_extensions/epilogue_helpers.h"
 #include "contrib_ops/cuda/llm/cutlass_extensions/gemm/kernel/moe_cutlass_kernel.h"
-
 
 #ifdef __GNUC__  // Restore GCC-specific diagnostics
 #pragma GCC diagnostic pop

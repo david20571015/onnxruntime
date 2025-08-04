@@ -79,10 +79,10 @@ struct MXSMTypeAdapter<__2SM> {
 
 template <typename T, typename CTA_M, typename CTA_N, typename CTA_K, typename CGA_M, typename CGA_N, typename CGA_K,
           typename XSM_>
-size_t genericMXFP8xMXFP4GemmKernelLauncher(void* D, void const* A, void const* B, void const* input_sf,
-                                            void const* weight_sf, float const* global_sf, int m, int n, int k, int batch_count,
-                                            tkc::CutlassGemmConfig gemmConfig, char* workspace, const size_t workspaceBytes, cudaStream_t stream,
-                                            int* occupancy) {
+size_t genericMXFP8xMXFP4GemmKernelLauncher(void*, void const*, void const*, void const*,
+                                            void const*, float const*, int, int, int, int,
+                                            tkc::CutlassGemmConfig, char*, const size_t, cudaStream_t,
+                                            int*) {
   ORT_THROW(
       "[LLM Error][FP4 gemm Runner] TensorRT-LLM is not compiled with support for this Architecture.");
 }

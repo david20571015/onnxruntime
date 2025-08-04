@@ -310,6 +310,7 @@ struct AdaBlockwiseGemmKernel {
 
     cute::clear(accum);
     int k_tile_iter = KT::Stages - 1;
+    static constexpr int scale_size = cute::size(scale);
     while (k_tile_iter < k_tile_count) {
       cute::for_each(cute::make_int_sequence<KT::NUM_GROUP_N>{},
                      [&](auto n_block) {
@@ -341,7 +342,7 @@ struct AdaBlockwiseGemmKernel {
                          smem_pipe_write = smem_pipe_read;
                          ++smem_pipe_read;
                          smem_pipe_read = smem_pipe_read == KT::Stages ? 0 : smem_pipe_read;
-                         cute::for_each(cute::make_int_sequence<cute::size(scale)>{},
+                         cute::for_each(cute::make_int_sequence<scale_size>{},
                                         [&](auto i) { scale(i) = tXrSFA(i) * tXrSFB(0); });
                        }
                        cute::clear(temp);
@@ -374,7 +375,7 @@ struct AdaBlockwiseGemmKernel {
                                       if constexpr (n_block == 0) {
                                         ++smem_pipe_read;
                                         smem_pipe_read = smem_pipe_read == KT::Stages ? 0 : smem_pipe_read;
-                                        cute::for_each(cute::make_int_sequence<cute::size(scale)>{},
+                                        cute::for_each(cute::make_int_sequence<scale_size>{},
                                                        [&](auto i) { scale(i) = tXrSFA(i) * tXrSFB(0); });
                                       }
                                       cute::clear(temp);
@@ -392,7 +393,7 @@ struct AdaBlockwiseGemmKernel {
                      cute::copy(s2r_copy_B, tXsB_read(cute::_, n_block_next, cute::_), tXrB(cute::_, cute::_, n_block_next));
                      cute::clear(temp);
                      if constexpr (n_block == 0) {
-                       cute::for_each(cute::make_int_sequence<cute::size(scale)>{},
+                       cute::for_each(cute::make_int_sequence<scale_size>{},
                                       [&](auto i) { scale(i) = tXrSFA(i) * tXrSFB(0); });
                      }
                      cute::gemm(mma, tCrA, tCrB(cute::_, cute::_, cute::_, n_block), temp);
