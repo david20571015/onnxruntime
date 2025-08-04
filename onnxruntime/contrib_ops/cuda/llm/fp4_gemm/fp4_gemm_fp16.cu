@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef ENABLE_FP4
 
 #include "contrib_ops/cuda/llm/fp4_gemm/fp4_gemm_template.h"
 
@@ -62,3 +63,4 @@ template class CutlassFp4GemmRunner<half, FP4GemmType::W4A8_MXFP4_MXFP8>;
 }  // namespace cutlass_kernels
 }  // namespace kernels
 }  // namespace onnxruntime::llm
+#endif

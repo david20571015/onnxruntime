@@ -36,6 +36,7 @@
 #include "cutlass/numeric_conversion.h"
 #include "cutlass/tensor_ref.h"
 
+#include "contrib_ops/cuda/llm/common/logger.h"
 #include "contrib_ops/cuda/llm/cutlass_extensions/compute_occupancy.h"
 #include "contrib_ops/cuda/llm/cutlass_extensions/epilogue_helpers.h"
 #include "contrib_ops/cuda/llm/cutlass_extensions/gemm/kernel/default_fpA_intB_traits.h"

@@ -16,6 +16,7 @@
 
 #pragma once
 
+#ifdef ENABLE_FP4
 #include <cuda_runtime_api.h>
 #include <vector>
 
@@ -91,3 +92,4 @@ class CutlassFp4GemmRunner : public virtual CutlassFp4GemmRunnerInterface {
 }  // namespace cutlass_kernels
 }  // namespace kernels
 }  // namespace onnxruntime::llm
+#endif  // ENABLE_FP4

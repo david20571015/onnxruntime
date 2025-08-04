@@ -15,8 +15,16 @@
  */
 
 #pragma once
+
+#ifdef ENABLE_FP4
 #include "contrib_ops/cuda/llm/common/logger.h"
 #include "core/providers/cuda/shared_inc/cuda_call.h"
+
+#ifdef _WIN32
+#pragma nv_diag_suppress 177
+#pragma warning(push)
+#pragma warning(disable : 177)
+#endif
 
 #ifndef _WIN32
 #pragma GCC diagnostic push
@@ -36,11 +44,16 @@
 #pragma GCC diagnostic pop
 #endif  // #ifndef _WIN32
 
+#include "contrib_ops/cuda/llm/common/logger.h"
 #include "contrib_ops/cuda/llm/fp4_gemm/fp4_gemm.h"
 #include "contrib_ops/cuda/llm/fp4_gemm/mxfp8_mxfp4_gemm_template_sm100.h"
 #include "contrib_ops/cuda/llm/fp4_gemm/nvfp4_nvfp4_gemm_template_sm100.h"
 #include "contrib_ops/cuda/llm/fp4_gemm/nvfp4_nvfp4_gemm_template_sm120.h"
 #include "contrib_ops/cuda/llm/common/cuda_runtime_utils.h"
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 namespace onnxruntime::llm {
 namespace kernels {
@@ -445,3 +458,5 @@ size_t CutlassFp4GemmRunner<T, fp4GemmType>::getWorkspaceSize(
 }  // namespace cutlass_kernels
 }  // namespace kernels
 }  // namespace onnxruntime::llm
+
+#endif

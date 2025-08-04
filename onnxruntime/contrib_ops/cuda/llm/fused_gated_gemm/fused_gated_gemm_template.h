@@ -31,6 +31,7 @@
 #pragma GCC diagnostic pop
 #endif  // __GNUC
 
+#include "contrib_ops/cuda/llm/common/logger.h"
 #include "contrib_ops/cuda/llm/fused_gated_gemm/fused_gated_gemm.h"
 #include "contrib_ops/cuda/llm/fused_gated_gemm/fused_gated_gemm_kernel_template_sm90.h"
 #include "contrib_ops/cuda/llm/common/cuda_runtime_utils.h"

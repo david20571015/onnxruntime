@@ -17,6 +17,7 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <cmath>
 #include <cub/cub.cuh>
 #include <cute/arch/cluster_sm90.hpp>
 #include <cute/arch/copy_sm90_desc.hpp>
@@ -1120,7 +1121,7 @@ template <typename InputType, typename OutputType>
 __global__ void convert_kernel(OutputType* output, InputType const* const input, size_t num_elems) {
   for (int idx = blockIdx.x * blockDim.x + threadIdx.x; idx < num_elems; idx += gridDim.x * blockDim.x) {
     float value = float(input[idx]);
-    if (std::isnan(value)) {
+    if (isnan(value)) {
       output[idx] = OutputType(448);
     } else {
       output[idx] = OutputType(value);

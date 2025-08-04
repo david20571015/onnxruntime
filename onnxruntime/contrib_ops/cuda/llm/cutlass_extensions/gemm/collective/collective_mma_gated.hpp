@@ -37,6 +37,6 @@ struct CollectiveMmaGated {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "cutlass_extensions/gemm/collective/sm90_mma_gated_tma_gmma_ss_warpspecialized.hpp"
-#include "cutlass_extensions/gemm/collective/sm90_mma_gated_tma_gmma_ss_warpspecialized_fp8.hpp"
+#include "contrib_ops/cuda/llm/cutlass_extensions/gemm/collective/sm90_mma_gated_tma_gmma_ss_warpspecialized.hpp"
+#include "contrib_ops/cuda/llm/cutlass_extensions/gemm/collective/sm90_mma_gated_tma_gmma_ss_warpspecialized_fp8.hpp"
 /////////////////////////////////////////////////////////////////////////////////////////////////

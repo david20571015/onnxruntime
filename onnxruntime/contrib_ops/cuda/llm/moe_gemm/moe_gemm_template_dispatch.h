@@ -39,18 +39,20 @@
 #include "cutlass/gemm/dispatch_policy.hpp"
 #include "cutlass/gemm/group_array_problem_shape.hpp"
 #include "cutlass/gemm/kernel/gemm_universal.hpp"
+
+// #include "contrib_ops/cuda/llm/cutlass_extensions/gemm/threadblock/dq_mma_pipelined.h"
+
 #include "cutlass/tensor_ref.h"
 
-#include "contrib_ops/cuda/llm/cutlass_extensions/gemm/kernel/default_fpA_intB_traits.h"
-#include "contrib_ops/cuda/llm/cutlass_extensions/gemm/threadblock/default_mma.h"
-#include "contrib_ops/cuda/llm/cutlass_extensions/weight_only_quant_op.h"
-
-#include "cutlass/gemm/device/gemm_grouped.h"
-#include "cutlass/gemm/kernel/default_gemm_grouped.h"
+// #include "cutlass/gemm/device/gemm_grouped.h"
+// #include "cutlass/gemm/kernel/default_gemm_grouped.h"
 
 #include "contrib_ops/cuda/llm/cutlass_extensions/compute_occupancy.h"
 #include "contrib_ops/cuda/llm/cutlass_extensions/epilogue_helpers.h"
+#include "contrib_ops/cuda/llm/cutlass_extensions/gemm/kernel/default_fpA_intB_traits.h"
 #include "contrib_ops/cuda/llm/cutlass_extensions/gemm/kernel/moe_cutlass_kernel.h"
+#include "contrib_ops/cuda/llm/cutlass_extensions/gemm/threadblock/default_mma.h"
+#include "contrib_ops/cuda/llm/cutlass_extensions/weight_only_quant_op.h"
 
 #ifdef __GNUC__  // Restore GCC-specific diagnostics
 #pragma GCC diagnostic pop
@@ -524,7 +526,9 @@ bool MoeGemmRunner<T, WeightType, OutputType, ScaleBiasType>::isTmaWarpSpecializ
 
 template <typename T, typename WeightType, typename OutputType, typename ScaleBiasType>
 bool MoeGemmRunner<T, WeightType, OutputType, ScaleBiasType>::supportsTmaWarpSpecialized() const {
-  return (sm_ == 90 && kernels::cutlass_kernels::isValidHopperMOESpecialisation<T, WeightType>()) || (sm_ >= 100 && sm_ < 120 && kernels::cutlass_kernels::isValidBlackwellMOESpecialisation<T, WeightType>()) || ((sm_ == 120 || sm_ == 121) && kernels::cutlass_kernels::isValidSM120MOESpecialisation<T, WeightType>());
+  return (sm_ == 90 && kernels::cutlass_kernels::isValidHopperMOESpecialisation<T, WeightType>()) ||
+         (sm_ >= 100 && sm_ < 120 && kernels::cutlass_kernels::isValidBlackwellMOESpecialisation<T, WeightType>()) ||
+         ((sm_ == 120 || sm_ == 121) && kernels::cutlass_kernels::isValidSM120MOESpecialisation<T, WeightType>());
 }
 
 template <typename T, typename WeightType, typename OutputType, typename ScaleBiasType>
@@ -537,7 +541,8 @@ template <typename T, typename WeightType, typename OutputType, typename ScaleBi
 bool MoeGemmRunner<T, WeightType, OutputType, ScaleBiasType>::supportsFusedGatedActivation(
     bool is_gated_activation, int gemm_n, int gemm_k) const {
   constexpr bool ENABLE_FUSED_GATED_ACTIVATION = true;
-  return is_gated_activation && std::is_same_v<T, WeightType> && !std::is_same_v<T, float> && !use_fp8 && (this->getSM() >= 80) && (gemm_k % 64 == 0) && (gemm_n % 64 == 0) && ENABLE_FUSED_GATED_ACTIVATION;
+  return is_gated_activation && std::is_same_v<T, WeightType> && !std::is_same_v<T, float> && !use_fp8 &&
+         (this->getSM() >= 80) && (gemm_k % 64 == 0) && (gemm_n % 64 == 0) && ENABLE_FUSED_GATED_ACTIVATION;
 }
 
 template <typename T, typename WeightType, typename OutputType, typename ScaleBiasType>
@@ -736,7 +741,6 @@ size_t MoeGemmRunner<T, WeightType, OutputType, ScaleBiasType>::calcMaxWorkspace
     return max_size;
   } else {
     ORT_THROW("Attempting to calculate Hopper GEMM workspace size with unsupported weight combination");
-    return 0;
   }
 }
 

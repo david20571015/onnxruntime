@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef _WIN32
+#pragma nv_diag_suppress 177
+#pragma warning(push)
+#pragma warning(disable : 177)
+#endif
 
 #include "contrib_ops/cuda/llm/fp8_blockscale_gemm/fp8_blockscale_gemm.h"
 #include "contrib_ops/cuda/llm/fp8_blockscale_gemm/fp8_blockscale_gemm_kernel.cuh"
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
+
 #include "contrib_ops/cuda/llm/common/logger.h"
 #include "core/common/common.h"
 
@@ -85,7 +95,7 @@ void CutlassFp8BlockScaleGemmRunner<ElementA, ElementB, ElementD>::moeGemm(void*
   constexpr bool internal_quantize_a = !std::is_same_v<ElementA, __nv_fp8_e4m3>;
   constexpr bool internal_quantize_b = !std::is_same_v<ElementB, __nv_fp8_e4m3>;
 
-  auto* ws_ptr = workspace_;
+  [[maybe_unused]] auto* ws_ptr = workspace_;
   if constexpr (internal_quantize_a || internal_quantize_b) {
     ORT_ENFORCE(ws_ptr != nullptr);
   }

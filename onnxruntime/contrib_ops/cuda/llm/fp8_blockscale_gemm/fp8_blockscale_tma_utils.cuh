@@ -101,6 +101,7 @@ CUtensorMap make_2d_tma_copy_desc(data_type* global_address, uint64_t gmem_dim[2
   return tensor_map;
 }
 
+#if __CUDA_ARCH__ >= 900
 __device__ uint64_t mbarrier_arrive_1_expect_tx_cta(void* smem_ptr, uint32_t tx_count) {
   uint64_t state;
   asm("mbarrier.arrive.expect_tx.release.cta.shared::cta.b64 %0, [%1], %2; // 8. "
@@ -109,5 +110,13 @@ __device__ uint64_t mbarrier_arrive_1_expect_tx_cta(void* smem_ptr, uint32_t tx_
       : "memory");
   return state;
 }
+#else
+__device__ uint64_t mbarrier_arrive_1_expect_tx_cta(void* /*smem_ptr*/, uint32_t /*tx_count*/) {
+  asm volatile("trap;");
+  return 0;
+}
+#endif
+
+
 
 }  // namespace onnxruntime::llm::kernels::fp8_blockscale_gemm
