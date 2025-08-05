@@ -117,6 +117,4 @@ __device__ uint64_t mbarrier_arrive_1_expect_tx_cta(void* /*smem_ptr*/, uint32_t
 }
 #endif
 
-
-
 }  // namespace onnxruntime::llm::kernels::fp8_blockscale_gemm

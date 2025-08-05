@@ -22,8 +22,6 @@
 
 #ifdef _WIN32
 #pragma nv_diag_suppress 177
-#pragma warning(push)
-#pragma warning(disable : 177)
 #endif
 
 #ifndef _WIN32
@@ -50,6 +48,7 @@
 #include "contrib_ops/cuda/llm/fp4_gemm/nvfp4_nvfp4_gemm_template_sm100.h"
 #include "contrib_ops/cuda/llm/fp4_gemm/nvfp4_nvfp4_gemm_template_sm120.h"
 #include "contrib_ops/cuda/llm/common/cuda_runtime_utils.h"
+#include "core/providers/cuda/shared_inc/cuda_call.h"
 
 #ifdef _WIN32
 #pragma warning(pop)

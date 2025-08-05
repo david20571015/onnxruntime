@@ -15,8 +15,6 @@
  */
 #ifdef _WIN32
 #pragma nv_diag_suppress 177
-#pragma warning(push)
-#pragma warning(disable : 177)
 #endif
 
 #include "contrib_ops/cuda/llm/fp8_blockscale_gemm/fp8_blockscale_gemm.h"
